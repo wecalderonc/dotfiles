@@ -31,9 +31,10 @@ for name in aliases gitconfig irbrc pryrc rspec zprofile zshrc; do
   fi
 done
 
-# Install zsh-syntax-highlighting plugin
+# Install zsh plugins and Powerlevel10k theme
 CURRENT_DIR=`pwd`
-ZSH_PLUGINS_DIR="$HOME/.oh-my-zsh/custom/plugins"
+ZSH_CUSTOM_DIR="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+ZSH_PLUGINS_DIR="$ZSH_CUSTOM_DIR/plugins"
 mkdir -p "$ZSH_PLUGINS_DIR" && cd "$ZSH_PLUGINS_DIR"
 if [ ! -d "$ZSH_PLUGINS_DIR/zsh-syntax-highlighting" ]; then
   echo "-----> Installing zsh plugin 'zsh-syntax-highlighting'..."
@@ -41,6 +42,17 @@ if [ ! -d "$ZSH_PLUGINS_DIR/zsh-syntax-highlighting" ]; then
   git clone https://github.com/zsh-users/zsh-syntax-highlighting
 fi
 cd "$CURRENT_DIR"
+
+if [ ! -d "$ZSH_CUSTOM_DIR/themes/powerlevel10k" ]; then
+  echo "-----> Installing Powerlevel10k theme..."
+  git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$ZSH_CUSTOM_DIR/themes/powerlevel10k"
+fi
+
+# Symlink p10k config if present in this repo
+if [ -f "$PWD/p10k.zsh" ]; then
+  backup "$HOME/.p10k.zsh"
+  symlink "$PWD/p10k.zsh" "$HOME/.p10k.zsh"
+fi
 
 # Symlink VS Code settings and keybindings to the present `settings.json` and `keybindings.json` files
 # If it's a macOS
