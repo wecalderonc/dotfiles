@@ -61,12 +61,17 @@ for name in settings.json keybindings.json; do
   symlink $PWD/$name $target
 done
 
-# Symlink SSH config file to the present `config` file for macOS and add SSH passphrase to the keychain
+# Symlink SSH config file to the present `config` file for macOS and add SSH keys to the keychain
 if [[ `uname` =~ "Darwin" ]]; then
   target=~/.ssh/config
   backup $target
   symlink $PWD/config $target
-  ssh-add --apple-use-keychain ~/.ssh/id_ed25519
+  # Support dual GitHub accounts (work + personal) and the classic single-key Le Wagon setup
+  for key in ~/.ssh/id_ed25519_personal ~/.ssh/id_ed25519_work ~/.ssh/id_ed25519; do
+    if [ -f "$key" ]; then
+      ssh-add --apple-use-keychain "$key" 2>/dev/null || ssh-add "$key" 2>/dev/null || true
+    fi
+  done
 fi
 
 # Refresh the current terminal with the newly installed configuration
